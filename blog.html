@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>博客 | 孟令寅</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #333;
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd, #7dd3fc);
+      min-height: 100vh;
+      line-height: 1.8;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+    .back {
+      display: inline-block;
+      font-size: 14px;
+      color: #666;
+      text-decoration: none;
+      margin-bottom: 32px;
+    }
+    .back:hover { color: #333; }
+    .page-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 32px;
+      letter-spacing: 1px;
+    }
+    .post-list { list-style: none; }
+    .post-item {
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .post-item:last-child { border-bottom: none; }
+    .post-item a {
+      text-decoration: none;
+      color: #333;
+    }
+    .post-item a:hover { color: #0284c7; }
+    .post-title {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .post-date {
+      font-size: 13px;
+      color: #999;
+    }
+    .empty {
+      text-align: center;
+      color: #aaa;
+      padding: 60px 0;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back">← 返回首页</a>
+    <h1 class="page-title">博客</h1>
+    <ul class="post-list" id="post-list"></ul>
+  </div>
+  <script>
+    // Blog index - add new posts here
+    const posts = [
+      // { title: "示例文章", date: "2026-03-23", file: "blog/example.html" }
+    ];
+
+    const list = document.getElementById('post-list');
+    if (posts.length === 0) {
+      list.innerHTML = '<li class="empty">暂无文章，敬请期待</li>';
+    } else {
+      posts.forEach(post => {
+        const li = document.createElement('li');
+        li.className = 'post-item';
+        li.innerHTML = `<a href="${post.file}"><div class="post-title">${post.title}</div><div class="post-date">${post.date}</div></a>`;
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>

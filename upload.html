@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown 博客上传工具</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #333;
+      background: #f5f5f5;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 32px;
+    }
+
+    /* Upload area */
+    .upload-area {
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+      margin-bottom: 24px;
+    }
+    .upload-area:hover,
+    .upload-area.dragover {
+      border-color: #0284c7;
+      background: #f0f9ff;
+    }
+    .upload-area p {
+      color: #888;
+      font-size: 15px;
+    }
+    .upload-area .icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+    #file-input { display: none; }
+
+    /* Meta fields */
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .meta label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .meta input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .meta input:focus { border-color: #0284c7; }
+
+    /* Preview */
+    .preview-section {
+      margin-bottom: 24px;
+    }
+    .preview-section h2 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: #555;
+    }
+    .preview-box {
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 32px;
+      min-height: 200px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .preview-box h1, .preview-box h2, .preview-box h3 { margin: 16px 0 8px; }
+    .preview-box p { margin-bottom: 12px; }
+    .preview-box code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .preview-box pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+    .preview-box pre code { background: none; color: inherit; padding: 0; }
+    .preview-box blockquote {
+      border-left: 4px solid #0284c7;
+      padding-left: 16px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    .preview-box ul, .preview-box ol { padding-left: 24px; margin-bottom: 12px; }
+    .preview-box img { max-width: 100%; border-radius: 8px; }
+
+    /* Buttons */
+    .actions {
+      display: flex;
+      gap: 12px;
+    }
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #0284c7;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: #fff;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+    .btn-secondary:hover { background: #f5f5f5; }
+
+    /* Status */
+    .status {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+    .status.success { display: block; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .status.error { display: block; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* Markdown format hint */
+    .hint {
+      margin-top: 32px;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e5e5e5;
+    }
+    .hint h3 { font-size: 15px; margin-bottom: 8px; color: #555; }
+    .hint pre {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      overflow-x: auto;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 博客上传工具</h1>
+    <p class="subtitle">上传 Markdown 文件，生成博客页面，然后发送给敲敲部署</p>
+
+    <!-- Upload -->
+    <div class="upload-area" id="upload-area">
+      <div class="icon">📄</div>
+      <p>拖拽 .md 文件到这里，或点击选择文件</p>
+    </div>
+    <input type="file" id="file-input" accept=".md,.markdown,.txt">
+
+    <!-- Meta -->
+    <div class="meta">
+      <div>
+        <label>文章标题</label>
+        <input type="text" id="title" placeholder="输入文章标题">
+      </div>
+      <div>
+        <label>日期</label>
+        <input type="date" id="date">
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-section">
+      <h2>预览</h2>
+      <div class="preview-box" id="preview">
+        <p style="color:#aaa;">上传文件后这里会显示预览...</p>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-primary" id="generate-btn" disabled>生成博客页面</button>
+      <button class="btn btn-secondary" id="clear-btn">清空</button>
+    </div>
+    <div class="status" id="status"></div>
+
+    <!-- Hint -->
+    <div class="hint">
+      <h3>💡 Markdown 格式示例</h3>
+      <pre>---
+title: 我的第一篇博客
+date: 2026-03-23
+---
+
+# 标题
+
+正文内容...
+
+## 二级标题
+
+- 列表项 1
+- 列表项 2
+
+> 引用文字
+
+`代码` 和 **加粗**</pre>
+    </div>
+  </div>
+
+  <script>
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const titleInput = document.getElementById('title');
+    const dateInput = document.getElementById('date');
+    const preview = document.getElementById('preview');
+    const generateBtn = document.getElementById('generate-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const status = document.getElementById('status');
+
+    let rawContent = '';
+
+    // Set default date to today
+    dateInput.value = new Date().toISOString().split('T')[0];
+
+    // Upload events
+    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', e => {
+      if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    function handleFile(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        rawContent = e.target.result;
+        parseFrontMatter(rawContent);
+        renderPreview(rawContent);
+        generateBtn.disabled = false;
+        hideStatus();
+      };
+      reader.readAsText(file);
+    }
+
+    function parseFrontMatter(content) {
+      const match = content.match(/^---\n([\s\S]*?)\n---\n?/);
+      if (match) {
+        const fm = match[1];
+        const titleMatch = fm.match(/title:\s*(.+)/);
+        const dateMatch = fm.match(/date:\s*(.+)/);
+        if (titleMatch) titleInput.value = titleMatch[1].trim();
+        if (dateMatch) dateInput.value = dateMatch[1].trim();
+      } else {
+        // Try first # heading as title
+        const headingMatch = content.match(/^#\s+(.+)/m);
+        if (headingMatch) titleInput.value = headingMatch[1].trim();
+      }
+    }
+
+    function renderPreview(content) {
+      // Strip front matter for preview
+      const body = content.replace(/^---\n[\s\S]*?\n---\n?/, '');
+      preview.innerHTML = marked.parse(body);
+    }
+
+    function getBody(content) {
+      return content.replace(/^---\n[\s\S]*?\n---\n?/, '');
+    }
+
+    // Generate
+    generateBtn.addEventListener('click', () => {
+      const title = titleInput.value.trim();
+      const date = dateInput.value;
+      if (!title) { showStatus('请输入文章标题', 'error'); return; }
+      if (!rawContent) { showStatus('请先上传 Markdown 文件', 'error'); return; }
+
+      const body = getBody(rawContent);
+      const htmlBody = marked.parse(body);
+      const slug = title.toLowerCase()
+        .replace(/[^a-z0-9\u4e00-\u9fff]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      const filename = `${slug}.html`;
+
+      const html = generateHTML(title, date, htmlBody);
+
+      // Download
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      showStatus(`✅ 已生成 ${filename}，请将此文件发送给敲敲进行部署`, 'success');
+    });
+
+    function generateHTML(title, date, bodyHTML) {
+      return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title} | 孟令寅</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #333;
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd, #7dd3fc);
+      min-height: 100vh;
+      line-height: 1.8;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+    .back {
+      display: inline-block;
+      font-size: 14px;
+      color: #666;
+      text-decoration: none;
+      margin-bottom: 32px;
+    }
+    .back:hover { color: #333; }
+    .post-header { margin-bottom: 32px; }
+    .post-title { font-size: 26px; font-weight: 600; margin-bottom: 8px; letter-spacing: 1px; }
+    .post-date { font-size: 14px; color: #999; }
+    .post-body {
+      background: rgba(255,255,255,0.85);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .post-body h1, .post-body h2, .post-body h3 { margin: 24px 0 12px; }
+    .post-body h1 { font-size: 22px; }
+    .post-body h2 { font-size: 19px; }
+    .post-body h3 { font-size: 17px; }
+    .post-body p { margin-bottom: 14px; }
+    .post-body a { color: #0284c7; }
+    .post-body code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .post-body pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 14px;
+    }
+    .post-body pre code { background: none; color: inherit; padding: 0; }
+    .post-body blockquote {
+      border-left: 4px solid #0284c7;
+      padding-left: 16px;
+      color: #666;
+      margin-bottom: 14px;
+    }
+    .post-body ul, .post-body ol { padding-left: 24px; margin-bottom: 14px; }
+    .post-body img { max-width: 100%; border-radius: 8px; }
+    .post-body hr { border: none; border-top: 1px solid #e5e5e5; margin: 24px 0; }
+    .post-body table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+    .post-body th, .post-body td { border: 1px solid #e5e5e5; padding: 8px 12px; text-align: left; }
+    .post-body th { background: #f5f5f5; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../blog.html" class="back">← 返回博客列表</a>
+    <div class="post-header">
+      <h1 class="post-title">${title}</h1>
+      <div class="post-date">${date}</div>
+    </div>
+    <div class="post-body">
+${bodyHTML}
+    </div>
+  </div>
+</body>
+</html>`;
+    }
+
+    // Clear
+    clearBtn.addEventListener('click', () => {
+      rawContent = '';
+      titleInput.value = '';
+      dateInput.value = new Date().toISOString().split('T')[0];
+      preview.innerHTML = '<p style="color:#aaa;">上传文件后这里会显示预览...</p>';
+      generateBtn.disabled = true;
+      fileInput.value = '';
+      hideStatus();
+    });
+
+    function showStatus(msg, type) {
+      status.textContent = msg;
+      status.className = 'status ' + type;
+    }
+    function hideStatus() { status.className = 'status'; }
+  </script>
+</body>
+</html>
