@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>孟令寅 | 个人主页</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #333;
+      background: #fafafa;
+      line-height: 1.8;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      color: #999;
+    }
+
+    .name {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 15px;
+      color: #888;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .section p,
+    .section li {
+      font-size: 15px;
+      color: #555;
+    }
+
+    .section ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .section ul li {
+      padding: 4px 0;
+    }
+
+    .section ul li::before {
+      content: "—";
+      margin-right: 8px;
+      color: #ccc;
+    }
+
+    /* Timeline */
+    .timeline-item {
+      position: relative;
+      padding-left: 20px;
+      padding-bottom: 20px;
+      border-left: 2px solid #eee;
+    }
+
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      font-size: 15px;
+      color: #333;
+    }
+
+    .timeline-sub {
+      font-size: 13px;
+      color: #999;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid #eee;
+      font-size: 13px;
+      color: #bbb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="avatar">寅</div>
+      <h1 class="name">孟令寅</h1>
+      <p class="tagline">清华大学 · 本科一年级</p>
+    </div>
+
+    <!-- About -->
+    <div class="section">
+      <h2 class="section-title">关于我</h2>
+      <p>
+        你好，我是孟令寅，一名清华大学本科一年级的学生。
+        爱好广泛，对技术充满好奇，正在不断探索和学习的路上。
+      </p>
+    </div>
+
+    <!-- Experience -->
+    <div class="section">
+      <h2 class="section-title">经历</h2>
+      <div class="timeline-item">
+        <div class="timeline-title">清华大学</div>
+        <div class="timeline-sub">本科在读 · 2025 — 至今</div>
+      </div>
+    </div>
+
+    <!-- Interests -->
+    <div class="section">
+      <h2 class="section-title">兴趣方向</h2>
+      <ul>
+        <li>计算机科学与技术</li>
+        <li>探索新技术与新领域</li>
+        <li>持续学习中</li>
+      </ul>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      &copy; 2026 孟令寅
+    </div>
+
+  </div>
+</body>
+</html>
