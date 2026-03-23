@@ -35,13 +35,16 @@
       width: 96px;
       height: 96px;
       border-radius: 50%;
-      background: #e0e0e0;
       margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 36px;
-      color: #999;
+      overflow: hidden;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .name {
@@ -143,7 +146,7 @@
 
     <!-- Header -->
     <div class="header">
-      <div class="avatar">寅</div>
+      <div class="avatar"><img src="avatar.png" alt="小老虎"></div>
       <h1 class="name">孟令寅</h1>
       <p class="tagline">清华大学 · 本科一年级</p>
     </div>
